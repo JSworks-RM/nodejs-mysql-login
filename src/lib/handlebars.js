@@ -1,0 +1,2 @@
+// Modulo handlebars vamos a usar de vez en cuando algunas funciones. ESAS FUNICIONES LAS VAMMOS A definir dentro de la carpeta lib/handlebars.js.
+// Si por ejemplo queremos procesar algunas fechas, no podemos ejecutar una función dentro de handlebars. Tenemos que hacerlo por parte a traves de helpers
