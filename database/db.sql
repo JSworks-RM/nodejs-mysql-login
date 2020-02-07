@@ -31,3 +31,8 @@ CREATE TABLE links (
     constraint fk_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+/* ALTER TABLE links 
+    MODIFY id INT(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT = 2; */
+
+/* Insert */
+INSERT INTO links values (4, 'Nacho 4', 'http://nachoweb.com', 'Prueba desde consola', NULL, NULL);

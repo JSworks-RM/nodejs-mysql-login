@@ -20,4 +20,3 @@
 12. Express-validator (Valida los datos que envía el usuario)
 13. Nodemon (Para trabajar en desarrollo)
 
-Creamos ruta links/add, bootstrap, google fonts, font awesome, formulario contacto, navbar en ruta partials/navigation.hbs
