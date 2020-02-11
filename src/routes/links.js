@@ -43,4 +43,27 @@ router.get('/delete/:id', async (req, res) => {
     res.redirect('/links')
 })
 
+// QUERY UPDATE
+// Para editar de la base de datos primero nos aseguramos que exista el ID que queremos eliminar => (req.params.id) y que se estan recibiendo correctamente los datos que queremos guardar
+// Para eso, vamos a mostrar una nueva vista con el formulario a editar. Creamos un nuevo link edit.hbs, pintamos un formulario. (Similar al del ADD)
+// Consultamos a base de datos y seleccionamos datos del id a editar para poblar el formulario a editar. Poblamos con atributo value para mostrar en pantalla el dato actual de ese id
+router.get('/edit/:id', async (req, res) => {
+    const { id } = req.params
+    const links = await dbPoolConn.query('SELECT * FROM links where ID = ?', id)
+    console.log(links[0])
+    res.render('links/edit', { link: links[0] }) // Pasamos prop links: los links que obtenemos de la base de datos 
+})
+
+router.post('/edit/:id', async (req, res) => {
+    const { id } = req.params
+    const { title, url, description } = req.body
+    const newLink = {
+        title,
+        url,
+        description
+    }
+    await dbPoolConn.query('UPDATE links set ? WHERE ID = ?', [ newLink, id ])
+    res.redirect('/links')
+})
+
 module.exports = router
