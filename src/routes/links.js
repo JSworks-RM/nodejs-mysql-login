@@ -29,10 +29,18 @@ router.post('/add', async (req, res) => {
     res.redirect('/links')
 })
 
-
+// QUERY SELECT y redirección a la vista den links/list.hbs. ('/') = ('/links)
 router.get('/', async (req, res) => {
     const links = await dbPoolConn.query('SELECT * FROM links')
     res.render('links/list.hbs', { links: links })
+})
+
+// QUERY DELETE 
+// Para eliminar de la base de datos primero nos aseguramos que exista el ID que queremos eliminar => (req.params.id)
+router.get('/delete/:id', async (req, res) => {
+    const { id } = req.params    
+    await dbPoolConn.query('DELETE FROM links WHERE ID = ?', id )
+    res.redirect('/links')
 })
 
 module.exports = router
