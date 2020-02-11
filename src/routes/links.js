@@ -26,6 +26,12 @@ router.post('/add', async (req, res) => {
     // Insert en table link, establesiendo un dato nuevo con "set" ?, y a través del signo de interrogación indicamos que pasamos dato a continuación y le pasamos el dato dentro de un arreglo
     // La petición como va a tomar tiempo es asyncrona. Entonces podemos manejarla con un callback, promesa .then() y Sync Await
     await dbPoolConn.query( sql, newLink )
+    // Llamamos a flash para enviar mensaje de respuesta al cliente
+    // Para que funcione flash hay que almacenarlo en una sesión. Utilizaremos el módulo express-session
+    // Al utilizar flash desde middleware, lo tenemos desde un request; Entonces decir req.flash()significa decir que utilice éste módulo flash
+    // Flash recibe dos parámetros. El nombre con el que queremos guardar el mensaje y el segundo es el valor de ese mensaje
+    // Hacemos disponible en todas las vistas declarandolo en las variables globaes para poder validar si existe el mensaje y poder mostrarlo
+    req.flash('success', 'Link saved successfully') 
     res.redirect('/links')
 })
 
@@ -40,6 +46,7 @@ router.get('/', async (req, res) => {
 router.get('/delete/:id', async (req, res) => {
     const { id } = req.params    
     await dbPoolConn.query('DELETE FROM links WHERE ID = ?', id )
+    req.flash('success', 'Link DELETED successfully')
     res.redirect('/links')
 })
 
@@ -50,7 +57,6 @@ router.get('/delete/:id', async (req, res) => {
 router.get('/edit/:id', async (req, res) => {
     const { id } = req.params
     const links = await dbPoolConn.query('SELECT * FROM links where ID = ?', id)
-    console.log(links[0])
     res.render('links/edit', { link: links[0] }) // Pasamos prop links: los links que obtenemos de la base de datos 
 })
 
@@ -63,6 +69,7 @@ router.post('/edit/:id', async (req, res) => {
         description
     }
     await dbPoolConn.query('UPDATE links set ? WHERE ID = ?', [ newLink, id ])
+    req.flash('success', 'Link UPDATED successfully')
     res.redirect('/links')
 })
 

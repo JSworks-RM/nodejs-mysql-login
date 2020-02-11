@@ -2,6 +2,11 @@ const express = require('express')
 const morgan = require('morgan') // Morgan: Muestra por consola las peticiones que van llegando
 const exphbs = require('express-handlebars') // Con éste módulo vamos a crear las plantillas para las vistas del front
 const path = require('path') // Módulo nativo de node para facilitar configuración de rutas usando sus métodos. ej: path.join()
+const flash = require('connect-flash') // Middleware que permite enviar mensajes desde diferentes vistas
+const session = require('express-session') // Las sessions son para almacenar datos en el servidor
+const MySQLStore = require('express-session-mysql')
+
+const { database } = require('./keys')
 
 // Initializations
 const app = express()
@@ -24,6 +29,13 @@ app.set('view engine', '.hbs') // Usamos el motor
 
 
 // Middlewares: Son funciones que se ejecutan cada vez que un usuario envía una petición o cada vez que una aplicación cliente envía una petición al servidor
+app.use(session({ // Configurando la ssion en un objeto
+    secret: 'mysqlsession',
+    resave: false, // Para que no empiece a renovar
+    saveUninitialized: false, // Para que no se vuelva a iniciar la sesión
+    store: new MySQLStore(database) // Indicamos donde se va a guardar la session. Para ello hay que instalar y requerir el módulo express-mysql.session, lo instanciamos y le pasamos la conexion de la base de datos
+}))
+app.use(flash())
 app.use(morgan('dev'));
 app.use(express.urlencoded({extended: false})) // Este método de express sirve para poder aceptar los datos que envien los usuarios desde un formulario 
 app.use(express.json()) // Para extender con algúna app cliente para enviar y recibir JSON
@@ -32,6 +44,7 @@ app.use(express.json()) // Para extender con algúna app cliente para enviar y r
 // Global variables
 app.use((req, res, next) => {
     // Funcionalidades ...
+    app.locals.success = req.flash('success') // Hacemos disponible la variable global de mensaje exitoso
     next();
 })
 
