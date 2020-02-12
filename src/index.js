@@ -50,6 +50,7 @@ app.use(passport.session()) // Abrimos session para poder indicar a passport dó
 app.use((req, res, next) => {
     // Funcionalidades ...
     app.locals.success = req.flash('success') // Hacemos disponible la variable global de mensaje exitoso
+    app.locals.message = req.flash('message') // Hacemos disponible la variable global de mensaje error
     next();
 })
 

@@ -6,6 +6,38 @@ const poolDB = require('../database')
 
 const helpers = require('../lib/helpers')
 
+// Método para signin
+passport.use('local.signin', new LocalStrategy (
+    {
+        usernameField: 'username',
+        passwordField: 'password',
+        passReqToCallback: true 
+    }, async (req, username, password, done) => {
+
+        const rows = await poolDB.query('SELECT * FROM users WHERE username = ?', [ username ])
+        
+        if( rows.length > 0 ) { // Si es mayor 0 es que ha encontrado a un usuario. 
+
+            const user = rows[0] // Guardamos ese usuario
+            const validatePassword = await helpers.matchPassword(password, user.password) // Validamos contraseña
+
+            if ( validatePassword ) {
+
+                done(null, user, req.flash('success', 'Welcome ' + user.username)) // Pasos null de error, user para serialize and deserialize, y mensaje flash de bienvenida
+            
+            } else {
+
+                done(null, false, req.flash('message', 'incorrect password'))
+
+            }
+        } else {
+
+            return done(null, false, req.flash('message', 'The username does not exists'))
+
+        }
+
+    }))
+
 // Al tener estos dos módulos (passport y passport-local), ya podemos hacer nuestras autenticaciones
 // Para poder usar toda esta lógica de autenticación debemos llamarla desde algún sitio. 
 // El encargado de ejecutar esta autenticación va a ser la ruta signup que tenemos en las routes
@@ -31,6 +63,9 @@ passport.use('local.signup', new LocalStrategy (
 
     } ) )
 
+
+// La doc de passport nos indica que hay que definir dos partes de passport: Una para serializar al usuario y otra para deserializarlo
+// Es un proceso de como passport va a funcionar internamente
 // Con serializeUser() guardamos id de ese usuario
 passport.serializeUser((user, done) => {
     return done(null, user.id)
@@ -41,14 +76,6 @@ passport.deserializeUser( async (id, done) => {
     const row = await poolDB.query('SELECT * FROM users WHERE id = ?', id)
     return done(null, row[0])
 })
-
-
-// La doc de passport nos indica que hay que definir dos partes de passport: Una para serializar al usuario y otra para deserializarlo
-// Es un proceso de como passport va a funcionar internamente
-/* passport.serializeUser((usr, done) => {
-
-})
- */
 
 
 

@@ -26,9 +26,27 @@ router.get('/signup', (req, res) => {
 
 router.post('/signup', passport.authenticate('local.signup', {
     successRedirect: '/profile',
-    fairlureRedirect: '/signup',
-    fairlureFlash: true
+    failureRedirect: '/signup',
+    failureFlash: true
 }))
+
+// Ruta para renderizar datos del signin
+router.get('/signin', (req, res) => {
+    res.render('auth/signin')
+})
+
+// Ruta para autenticar los datos que vienen desde formulario de login
+router.post( '/signin', (req, res, next) => {
+        passport.authenticate ( 
+            'local.signin', 
+            {
+                successRedirect: '/profile',
+                failureRedirect: '/signin',
+                failureFlash: true
+            }
+        )(req, res, next)
+    }) 
+
 
 router.get('/profile', (req, res) => {
     res.send('This is a profile')
