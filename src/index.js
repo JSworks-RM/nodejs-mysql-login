@@ -5,11 +5,13 @@ const path = require('path') // Módulo nativo de node para facilitar configurac
 const flash = require('connect-flash') // Middleware que permite enviar mensajes desde diferentes vistas
 const session = require('express-session') // Las sessions son para almacenar datos en el servidor
 const MySQLStore = require('express-session-mysql')
+const passport = require('passport') // Lo requerimos para poder ejecutar su código principal
 
 const { database } = require('./keys')
 
 // Initializations
 const app = express()
+require('./lib/passport') // Requerimos la ruta de autenticación para que la app se entere de la autenticación que estamos creando
 
 
 // Settings: Configuraciones que necesita mi servidor
@@ -39,6 +41,9 @@ app.use(flash())
 app.use(morgan('dev'));
 app.use(express.urlencoded({extended: false})) // Este método de express sirve para poder aceptar los datos que envien los usuarios desde un formulario 
 app.use(express.json()) // Para extender con algúna app cliente para enviar y recibir JSON
+// Inicializamos passport pero para que sepa donde va a guardar los datos, passport usa una session
+app.use(passport.initialize()) // Inicializamos passport
+app.use(passport.session()) // Abrimos session para poder indicar a passport dónde guardar datos
 
 
 // Global variables
