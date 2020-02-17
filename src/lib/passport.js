@@ -23,7 +23,7 @@ passport.use('local.signin', new LocalStrategy (
 
             if ( validatePassword ) {
 
-                done(null, user, req.flash('success', 'Welcome ' + user.username)) // Pasos null de error, user para serialize and deserialize, y mensaje flash de bienvenida
+                done(null, user, req.flash('success', 'Welcome ' + user.username)) // Paso null de error, user para serialize and deserialize, y mensaje flash de bienvenida
             
             } else {
 
@@ -32,7 +32,10 @@ passport.use('local.signin', new LocalStrategy (
             }
         } else {
 
-            return done(null, false, req.flash('message', 'The username does not exists'))
+            // null que no es un error como tal, sino que no ha encontrado ningún usuario
+            // false para no devolver nada ya que no se ha encontrado un usuario.
+            // Un req.flash para indicar que el usuario que se esta logueando no existe
+            return done(null, false, req.flash('message', 'The username does not exists'))  
 
         }
 
@@ -55,9 +58,9 @@ passport.use('local.signup', new LocalStrategy (
             password,
             fullname
         }
-        newUser.password = await helpers.encriptPassword(password) // Enviamos password al método que nos retornará cifrará la contraseña
+        newUser.password = await helpers.encriptPassword(password) // Enviamos password al método que nos retornará cifradá la contraseña
         const sql = 'INSERT INTO users set ?'
-        const result = await poolDB.query( sql, [newUser] )
+        const result = await poolDB.query( sql, [ newUser ] )
         newUser.id = result.insertId
         return done(null, newUser)
 

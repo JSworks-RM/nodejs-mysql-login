@@ -1,9 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const dbPoolConn = require('../database') // Importando modulo database para poder hacer las consultas a la base de datos. Hace referencia a la base de datos.
+const { isLoggedIn } = require('../lib/auth')
 
 // Rutas
-router.get('/add', (req, res) => {
+router.get('/add', isLoggedIn, (req, res) => {
     res.render('links/add') // Renderizando el archivo add para mostrar en vista
 })
 
@@ -30,20 +31,20 @@ router.post('/add', async (req, res) => {
     // Para que funcione flash hay que almacenarlo en una sesión. Utilizaremos el módulo express-session
     // Al utilizar flash desde middleware, lo tenemos desde un request; Entonces decir req.flash()significa decir que utilice éste módulo flash
     // Flash recibe dos parámetros. El nombre con el que queremos guardar el mensaje y el segundo es el valor de ese mensaje
-    // Hacemos disponible en todas las vistas declarandolo en las variables globaes para poder validar si existe el mensaje y poder mostrarlo
+    // Hacemos disponible en todas las vistas declarandolo en las variables globales para poder validar si existe el mensaje y poder mostrarlo
     req.flash('success', 'Link saved successfully') 
     res.redirect('/links')
 })
 
-// QUERY SELECT y redirección a la vista den links/list.hbs. ('/') = ('/links)
-router.get('/', async (req, res) => {
+// QUERY SELECT y redirección a la vista de links/list.hbs. ('/') = ('/links)
+router.get('/', isLoggedIn, async (req, res) => {
     const links = await dbPoolConn.query('SELECT * FROM links')
     res.render('links/list.hbs', { links: links })
 })
 
 // QUERY DELETE 
 // Para eliminar de la base de datos primero nos aseguramos que exista el ID que queremos eliminar => (req.params.id)
-router.get('/delete/:id', async (req, res) => {
+router.get('/delete/:id', isLoggedIn, async (req, res) => {
     const { id } = req.params    
     await dbPoolConn.query('DELETE FROM links WHERE ID = ?', id )
     req.flash('success', 'Link DELETED successfully')
@@ -54,13 +55,13 @@ router.get('/delete/:id', async (req, res) => {
 // Para editar de la base de datos primero nos aseguramos que exista el ID que queremos eliminar => (req.params.id) y que se estan recibiendo correctamente los datos que queremos guardar
 // Para eso, vamos a mostrar una nueva vista con el formulario a editar. Creamos un nuevo link edit.hbs, pintamos un formulario. (Similar al del ADD)
 // Consultamos a base de datos y seleccionamos datos del id a editar para poblar el formulario a editar. Poblamos con atributo value para mostrar en pantalla el dato actual de ese id
-router.get('/edit/:id', async (req, res) => {
+router.get('/edit/:id', isLoggedIn, async (req, res) => {
     const { id } = req.params
     const links = await dbPoolConn.query('SELECT * FROM links where ID = ?', id)
     res.render('links/edit', { link: links[0] }) // Pasamos prop links: los links que obtenemos de la base de datos 
 })
 
-router.post('/edit/:id', async (req, res) => {
+router.post('/edit/:id', isLoggedIn, async (req, res) => {
     const { id } = req.params
     const { title, url, description } = req.body
     const newLink = {

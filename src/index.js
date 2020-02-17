@@ -17,7 +17,8 @@ require('./lib/passport') // Requerimos la ruta de autenticación para que la ap
 // Settings: Configuraciones que necesita mi servidor
 app.set('port', process.env.PORT || 4000) // Si existe un port en el sistema cogelo, sino, coge el 4000
 app.set('views', path.join(__dirname, 'views')) // Ubicación de la carpeta views
-app.engine('.hbs', exphbs({ // Configuramos motor: Asignamos un nombre, usamos el módulo expressHbs y creamos un objeto para configurarlo -> exphbs({})
+// Configuramos motor -> "app.engine": Asignamos un nombre, usamos el método exphbs({}) del módulo express-handlebars y creamos un objeto para la plantilla de las vistas -> exphbs({})
+app.engine('.hbs', exphbs({ 
     defaultLayout: 'main', // Nombre plantilla principal (layouts/main) donde colocaremos las partes comúnes de mi navegación.
     layoutDir: path.join( app.get('views'), 'layouts'), // Configuración de ruta de directorio layouts para indicar localicación de ruta de esa carpeta
     partialsDir: path.join( app.get('views'), 'partials'), // Concatenamos ruta views con partials => raiz/views/partials
@@ -31,7 +32,7 @@ app.set('view engine', '.hbs') // Usamos el motor
 
 
 // Middlewares: Son funciones que se ejecutan cada vez que un usuario envía una petición o cada vez que una aplicación cliente envía una petición al servidor
-app.use(session({ // Configurando la ssion en un objeto
+app.use(session({ // Configurando la session en un objeto
     secret: 'mysqlsession',
     resave: false, // Para que no empiece a renovar
     saveUninitialized: false, // Para que no se vuelva a iniciar la sesión
@@ -51,6 +52,7 @@ app.use((req, res, next) => {
     // Funcionalidades ...
     app.locals.success = req.flash('success') // Hacemos disponible la variable global de mensaje exitoso
     app.locals.message = req.flash('message') // Hacemos disponible la variable global de mensaje error
+    app.locals.user = req.user // Dato de sesión del usuario que almacenamos en variable global para poder usarla desde cualquier vista
     next();
 })
 
@@ -58,7 +60,7 @@ app.use((req, res, next) => {
 // Routes: Definiremos las urls que necesita mi servidor requiriéndolas desde la carpeta routes/fileName
 app.use(require('./routes/index.js'))
 app.use(require('./routes/authentication.js')) // Rutas relacionadas con login
-app.use('/links', require('./routes/links.js')) // Rutas encargadas de poder almacenar un enlace, elimirarlo, actualizarlo... Primer parámetro un prefijo para que cuando pidamos una ruta link tengamos que pedirla con su prpefijo. /link/rutaSolicitada
+app.use('/links', require('./routes/links.js')) // Rutas encargadas de poder almacenar un enlace, elimirarlo, actualizarlo... Primer parámetro un prefijo para que cuando pidamos una ruta link tengamos que pedirla con su preefijo. /link/rutaSolicitada
 
 // Public: Donde indicamos donde estarán las carpetas públicas
 app.use(express.static(path.join(__dirname, 'public')))
