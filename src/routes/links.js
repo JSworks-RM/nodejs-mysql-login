@@ -19,7 +19,8 @@ router.post('/add', async (req, res) => {
     const newLink = {
             title,
             url,
-            description
+            description,
+            user_id: req.user.id // Cada tarea que se guarde, va a tomar el id de ese user y relacionarlo con esa tarea
         };
     const sql = 'INSERT INTO links set ?'
         // console.log(newLink)
@@ -38,7 +39,7 @@ router.post('/add', async (req, res) => {
 
 // QUERY SELECT y redirección a la vista de links/list.hbs. ('/') = ('/links)
 router.get('/', isLoggedIn, async (req, res) => {
-    const links = await dbPoolConn.query('SELECT * FROM links')
+    const links = await dbPoolConn.query('SELECT * FROM links WHERE user_id = ?', [ req.user.id ] )
     res.render('links/list.hbs', { links: links })
 })
 
